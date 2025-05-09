@@ -181,10 +181,11 @@ export abstract class BaseRepository<Entity, MongoEntity>
       _id: result._id as Types.ObjectId,
     };
   }
+
   async saveReturnDocument(
     entity: Entity,
     session?: ClientSession,
-  ): Promise<Document<unknown, unknown, MongoEntity>> {
+  ): Promise<MongoEntity | null> {
     const mongoEntity = new this.genericModel(
       this.mapper.toPlainObject(entity),
     );
@@ -192,6 +193,7 @@ export abstract class BaseRepository<Entity, MongoEntity>
     const result = await newModel.save({ session });
     return result?.toObject();
   }
+
   async saveMany(entities: Entity[], session?: ClientSession) {
     const mongoEntities = entities.map(
       (entity) => new this.genericModel(this.mapper.toPlainObject(entity)),

@@ -3,7 +3,7 @@ import { createLogger, Logger, format, transports } from 'winston';
 import 'winston-daily-rotate-file';
 import { generateColor, generateTagLevel } from './generator.function';
 import { ConsoleTransportInstance } from 'winston/lib/winston/transports';
-import chalk from 'chalk';
+import * as clc from 'cli-color';
 
 export class CustomLogger implements LoggerService {
   private logger: Logger;
@@ -94,16 +94,16 @@ export class CustomLogger implements LoggerService {
   }
 
   private logFormatHandler(info: any) {
-    const timestamp: string = chalk.green(info.timestamp);
+    const timestamp: string = clc.green(info.timestamp);
     const levelTag: string = generateTagLevel(
       info.level,
       generateColor(info.level),
     );
-    const contextTag: string = chalk.hex(generateColor(info.level))(
+    const contextTag: string = clc.xterm(generateColor(info.level))(
       `[${this.getContext(info)}]`,
     );
     const metaTrace: string = this.generateMetaTrace(info);
-    const msg = `${timestamp}   ${levelTag} ${contextTag}${chalk.hex(
+    const msg = `${timestamp}   ${levelTag} ${contextTag}${clc.xterm(
       generateColor(info.level),
     )(metaTrace)} ${info.message}`;
     return info.stack ? msg + '\n' + info.stack : msg;

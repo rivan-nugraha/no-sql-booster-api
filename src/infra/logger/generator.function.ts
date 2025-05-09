@@ -1,5 +1,5 @@
 import { ColorLevel } from '../../core/constant/logger/color.const';
-import chalk from 'chalk';
+import * as clc from 'cli-color';
 
 export function generateColor(level: string) {
   switch (level) {
@@ -14,10 +14,12 @@ export function generateColor(level: string) {
     case 'verbose':
       return ColorLevel['verbose'];
     default:
-      return '#000000';
+      return 0;
   }
 }
 
-export function generateTagLevel(level: string, color: string) {
-  return chalk.bgHex(color).white.bold(` ${level.toUpperCase()} `);
+
+
+export function generateTagLevel(level: string, color: number) {
+  return clc.xterm(color).white.bold(` ${level.toUpperCase()} `);
 }

@@ -5,10 +5,10 @@ import * as fs from 'fs';
 import { resolve } from 'path';
 import { HttpsOptions } from '@nestjs/common/interfaces/external/https-options.interface';
 import helmet from 'helmet';
-import * as ip from 'ip';
 import { CustomLogger } from './infra/logger/logger';
 import { AllExceptionFilter } from './core/base/http/base-http-exception.filter';
 import { DebugLoggerInterceptor } from './core/interceptor/debug-logger.interceptor';
+import * as os from 'os';
 
 async function bootstrap() {
   const httpsMode = !!Number(process.env.HTTPS_MODE);
@@ -36,7 +36,7 @@ async function bootstrap() {
   await app.listen(port, host, () => {
     logger.log(`Application Started at port: ${port}, httpsMode: ${httpsMode}`);
     if (process.env.MODE == 'DEVELOPMENT')
-      logger.log(`Current IP: ${ip.address()}`);
+      logger.log(`Current IP: ${getLocalIP()}`);
   });
 }
 
@@ -68,4 +68,18 @@ function generateHttpsModeOption(httpsMode: boolean): NestApplicationOptions {
   }
   return {};
 }
+
+function getLocalIP () {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const net of interfaces[name]!) {
+      if (net.family === 'IPv4' && !net.internal) {
+        return net.address;
+      }
+    }
+  }
+  return '127.0.0.1';
+}
+
+
 bootstrap();

@@ -60,7 +60,7 @@ export interface BaseRepositoryPort<Entity, MongoEntity> {
   saveReturnDocument(
     entity: Entity,
     session?: ClientSession,
-  ): Promise<Document<any, any>>;
+  ): Promise<MongoEntity | null>;
   saveMany(
     entity: Entity[],
     session?: ClientSession,
