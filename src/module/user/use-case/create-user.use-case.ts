@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { ResponseDto } from 'src/core/base/http/response.dto.base';
-import { BaseUseCase } from 'src/core/base/module/use-case.base';
+import { BaseUseCase, IUseCase } from 'src/core/base/module/use-case.base';
 
 import { EnvService } from 'src/infra/config/env.service';
 import { UserRepositoryPort } from '../repository/user.repository.port';
@@ -16,18 +16,14 @@ import { PickUseCasePayload } from 'src/core/base/types/pick-use-case-payload.ty
 import { SHA256 } from 'crypto-js';
 import { OptionalSecretKeyProps } from 'src/core/contract/optional-secret-key.request.contract';
 import { CreateUserRequestProps } from '../contract/user.request.contract';
-import { IRepositoryResponse } from 'src/core/interface/repository-response.interface';
+
 type TCreateUserPayload = PickUseCasePayload<
   CreateUserRequestProps & OptionalSecretKeyProps,
   'data' | 'user'
 >;
-type TCreateUserResponse = ResponseDto<IRepositoryResponse>;
 
 @Injectable()
-export class CreateUser extends BaseUseCase<
-  TCreateUserPayload,
-  TCreateUserResponse
-> {
+export class CreateUser extends BaseUseCase implements IUseCase<TCreateUserPayload>{
   constructor(
     @InjectUserRepository private userRepository: UserRepositoryPort,
     private envService: EnvService,

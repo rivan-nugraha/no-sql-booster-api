@@ -1,6 +1,6 @@
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { BaseUseCase } from 'src/core/base/module/use-case.base';
+import { BaseUseCase, IUseCase } from 'src/core/base/module/use-case.base';
 import { PickUseCasePayload } from 'src/core/base/types/pick-use-case-payload.type';
 import { EnvService } from 'src/infra/config/env.service';
 import { AuthRefreshTokenRequestProps } from '../contract/auth.request.contract';
@@ -18,10 +18,7 @@ type TRefreshTokenPayload = PickUseCasePayload<
 >;
 type TRefreshTokenResponse = ResponseDto<RefreshTokenResponseProps>;
 @Injectable()
-export class RefreshToken extends BaseUseCase<
-  TRefreshTokenPayload,
-  TRefreshTokenResponse
-> {
+export class RefreshToken extends BaseUseCase implements IUseCase<TRefreshTokenPayload> {
   constructor(
     private jwtService: JwtService,
     private envService: EnvService,

@@ -16,12 +16,10 @@ export interface IUseCase<IReq> {
 }
 
 @Injectable()
-export abstract class BaseUseCase<IReq, IRes> {
+export abstract class BaseUseCase{
   protected logger: CustomLogger;
 
   constructor() {
     this.logger = new CustomLogger(this.constructor.name);
   }
-
-  abstract execute(request?: IReq): IRes | Promise<IRes>;
 }

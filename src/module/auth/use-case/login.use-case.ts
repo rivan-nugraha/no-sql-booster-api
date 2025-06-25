@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ResponseDto } from 'src/core/base/http/response.dto.base';
-import { BaseUseCase } from 'src/core/base/module/use-case.base';
+import { BaseUseCase, IUseCase } from 'src/core/base/module/use-case.base';
 import { PickUseCasePayload } from 'src/core/base/types/pick-use-case-payload.type';
 
 import { EnvService } from 'src/infra/config/env.service';
@@ -13,9 +13,9 @@ import { LoginUserRequestProps } from '../contract/auth.request.contract';
 import { LoginUserResponseProps } from '../contract/auth.response.contract';
 
 type TLoginPayload = PickUseCasePayload<LoginUserRequestProps, 'data'>;
-type TLoginResponse = ResponseDto<LoginUserResponseProps>;
+
 @Injectable()
-export class LoginUser extends BaseUseCase<TLoginPayload, TLoginResponse> {
+export class LoginUser extends BaseUseCase implements IUseCase<TLoginPayload> {
   constructor(
     @InjectUserRepository private userRepository: UserRepositoryPort,
     private jwtService: JwtService,

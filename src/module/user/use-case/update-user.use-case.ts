@@ -7,7 +7,7 @@ import {
 
 import { InjectUserRepository } from '../repository/user.repository.provider';
 
-import { BaseUseCase } from 'src/core/base/module/use-case.base';
+import { BaseUseCase, IUseCase } from 'src/core/base/module/use-case.base';
 import { ResponseDto } from 'src/core/base/http/response.dto.base';
 
 import { PickUseCasePayload } from 'src/core/base/types/pick-use-case-payload.type';
@@ -19,12 +19,9 @@ type TUpdateUserPayload = PickUseCasePayload<
   UpdateUserRequestProps,
   'data' | '_id'
 >;
-type TUpdateUserResponse = ResponseDto;
+
 @Injectable()
-export class UpdateUser extends BaseUseCase<
-  TUpdateUserPayload,
-  TUpdateUserResponse
-> {
+export class UpdateUser extends BaseUseCase implements IUseCase<TUpdateUserPayload> {
   constructor(
     @InjectUserRepository private userRepository: UserRepositoryPort,
   ) {
