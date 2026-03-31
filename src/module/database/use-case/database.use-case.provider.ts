@@ -6,6 +6,7 @@ import { DeleteDatabase } from './delete-database.use-case';
 import { ListDatabaseCatalog } from './list-database-catalog.use-case';
 import { ListDatabaseCollections } from './list-database-collections.use-case';
 import { ListCollectionDocuments } from './list-collection-documents.use-case';
+import { UpdateCollectionDocument } from './update-collection-document.use-case';
 import { TestDatabase } from './test-database.use-case';
 import { DatabaseConnectionCache } from './database-connection-cache.service';
 
@@ -18,5 +19,6 @@ export const databaseUseCaseProvider: Provider[] = [
   ListDatabaseCatalog,
   ListDatabaseCollections,
   ListCollectionDocuments,
+  UpdateCollectionDocument,
   TestDatabase,
 ];

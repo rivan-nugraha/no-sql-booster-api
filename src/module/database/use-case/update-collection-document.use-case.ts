@@ -1,24 +1,23 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ObjectId } from 'mongodb';
 import { ResponseDto } from 'src/core/base/http/response.dto.base';
 import { BaseUseCase, IUseCase } from 'src/core/base/module/use-case.base';
 import { DatabaseRepositoryPort } from '../interface/database.repository.port';
 import { InjectDatabaseRepository } from '../repository/database.repository.provider';
 import { DatabaseConnectionCache } from './database-connection-cache.service';
 
-type TListDocumentsPayload = {
+type TUpdateDocumentPayload = {
   _id: string;
   dbName: string;
   collectionName: string;
-  skip: number;
-  limit: number;
-  filter?: Record<string, unknown>;
+  documentId: string;
+  update: Record<string, unknown>;
 };
-type TListDocumentsResponse = ResponseDto<Record<string, unknown>[]>;
 
 @Injectable()
-export class ListCollectionDocuments
+export class UpdateCollectionDocument
   extends BaseUseCase
-  implements IUseCase<TListDocumentsPayload>
+  implements IUseCase<TUpdateDocumentPayload>
 {
   constructor(
     @InjectDatabaseRepository
@@ -32,10 +31,9 @@ export class ListCollectionDocuments
     _id,
     dbName,
     collectionName,
-    skip,
-    limit,
-    filter,
-  }: TListDocumentsPayload): Promise<TListDocumentsResponse> {
+    documentId,
+    update,
+  }: TUpdateDocumentPayload): Promise<ResponseDto> {
     const database = await this.databaseRepository.findOneOrThrow({ _id });
     const uri = database.propsCopy.uri;
 
@@ -44,21 +42,31 @@ export class ListCollectionDocuments
       const db = conn.useDb(dbName);
       const collection = db.db.collection(collectionName);
 
-      const query = filter && Object.keys(filter).length > 0 ? filter : {};
+      // Remove _id from update payload to prevent immutable field error
+      const { _id: _, ...updateData } = update;
 
-      const [documents, total] = await Promise.all([
-        collection.find(query).skip(skip).limit(limit).toArray(),
-        Object.keys(query).length > 0
-          ? collection.countDocuments(query)
-          : collection.estimatedDocumentCount(),
-      ]);
+      let filter: Record<string, unknown>;
+      try {
+        filter = { _id: new ObjectId(documentId) };
+      } catch {
+        filter = { _id: documentId };
+      }
+
+      const result = await collection.replaceOne(filter, updateData);
+
+      if (result.matchedCount === 0) {
+        throw new HttpException(
+          { message: 'Document not found' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
 
       return new ResponseDto({
         status: HttpStatus.OK,
-        data: documents as Record<string, unknown>[],
-        count: total,
+        data: { modifiedCount: result.modifiedCount },
       });
     } catch (err) {
+      if (err instanceof HttpException) throw err;
       this.logger.error(err);
       throw new HttpException(
         { message: err.message || err },

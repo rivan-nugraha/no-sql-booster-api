@@ -13,6 +13,7 @@ import { UpdateDatabase } from '../use-case/update-database.use-case';
 import { ListDatabaseCatalog } from '../use-case/list-database-catalog.use-case';
 import { ListDatabaseCollections } from '../use-case/list-database-collections.use-case';
 import { ListCollectionDocuments } from '../use-case/list-collection-documents.use-case';
+import { UpdateCollectionDocument } from '../use-case/update-collection-document.use-case';
 import { TestDatabase } from '../use-case/test-database.use-case';
 import { CreateDatabaseRequestDto } from './dto/create-database.request.dto';
 import { UpdateDatabaseRequestDto } from './dto/update-database.request.dto';
@@ -28,6 +29,7 @@ export class DatabaseController {
     private readonly listDatabaseCatalog: ListDatabaseCatalog,
     private readonly listDatabaseCollections: ListDatabaseCollections,
     private readonly listCollectionDocuments: ListCollectionDocuments,
+    private readonly updateCollectionDocument: UpdateCollectionDocument,
     private readonly testDatabase: TestDatabase,
   ) {}
 
@@ -77,12 +79,39 @@ export class DatabaseController {
     @Param('collectionName') collectionName: string,
     @Query() query: GetPaginationDto,
   ) {
+    let filter: Record<string, unknown> | undefined;
+    const rawFilter = (query as any).filter;
+    if (rawFilter) {
+      try {
+        filter = JSON.parse(rawFilter);
+      } catch {
+        filter = undefined;
+      }
+    }
     return this.listCollectionDocuments.execute({
       _id,
       dbName,
       collectionName,
       skip: Number(query.skip) || 0,
       limit: Number(query.limit) || 50,
+      filter,
+    });
+  }
+
+  @SecurePut(':_id/catalog/:dbName/collections/:collectionName/documents/:documentId')
+  async updateDocument(
+    @Param('_id') _id: string,
+    @Param('dbName') dbName: string,
+    @Param('collectionName') collectionName: string,
+    @Param('documentId') documentId: string,
+    @Body() body: Record<string, unknown>,
+  ) {
+    return this.updateCollectionDocument.execute({
+      _id,
+      dbName,
+      collectionName,
+      documentId,
+      update: body,
     });
   }
 
