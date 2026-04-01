@@ -15,9 +15,12 @@ import { ListDatabaseCollections } from '../use-case/list-database-collections.u
 import { ListCollectionDocuments } from '../use-case/list-collection-documents.use-case';
 import { UpdateCollectionDocument } from '../use-case/update-collection-document.use-case';
 import { TestDatabase } from '../use-case/test-database.use-case';
+import { RunScript } from '../use-case/run-script.use-case';
+import { ListDocumentsQueryDto } from './dto/list-documents-query.dto';
 import { CreateDatabaseRequestDto } from './dto/create-database.request.dto';
 import { UpdateDatabaseRequestDto } from './dto/update-database.request.dto';
 import { TestDatabaseRequestDto } from './dto/test-database.request.dto';
+import { RunScriptRequestDto } from './dto/run-script.request.dto';
 
 @Controller('v1/databases')
 export class DatabaseController {
@@ -31,6 +34,7 @@ export class DatabaseController {
     private readonly listCollectionDocuments: ListCollectionDocuments,
     private readonly updateCollectionDocument: UpdateCollectionDocument,
     private readonly testDatabase: TestDatabase,
+    private readonly runScript: RunScript,
   ) {}
 
   @SecurePost()
@@ -77,13 +81,12 @@ export class DatabaseController {
     @Param('_id') _id: string,
     @Param('dbName') dbName: string,
     @Param('collectionName') collectionName: string,
-    @Query() query: GetPaginationDto,
+    @Query() query: ListDocumentsQueryDto,
   ) {
     let filter: Record<string, unknown> | undefined;
-    const rawFilter = (query as any).filter;
-    if (rawFilter) {
+    if (query.filter) {
       try {
-        filter = JSON.parse(rawFilter);
+        filter = JSON.parse(query.filter);
       } catch {
         filter = undefined;
       }
@@ -118,5 +121,22 @@ export class DatabaseController {
   @SecurePost('test')
   async test(@Body() body: TestDatabaseRequestDto) {
     return this.testDatabase.execute({ data: body });
+  }
+
+  @SecurePost(':_id/catalog/:dbName/run')
+  async run(
+    @Param('_id') _id: string,
+    @Param('dbName') dbName: string,
+    @Body() body: RunScriptRequestDto,
+    @AuthUser() user: JwtDecoded,
+  ) {
+    // user kept for future authorization/auditing
+    return this.runScript.execute({
+      _id,
+      dbName,
+      script: body.script,
+      limit: body.limit,
+      created_by: user?.user_id,
+    });
   }
 }

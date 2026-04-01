@@ -9,6 +9,7 @@ import { ListCollectionDocuments } from './list-collection-documents.use-case';
 import { UpdateCollectionDocument } from './update-collection-document.use-case';
 import { TestDatabase } from './test-database.use-case';
 import { DatabaseConnectionCache } from './database-connection-cache.service';
+import { RunScript } from './run-script.use-case';
 
 export const databaseUseCaseProvider: Provider[] = [
   DatabaseConnectionCache,
@@ -21,4 +22,5 @@ export const databaseUseCaseProvider: Provider[] = [
   ListCollectionDocuments,
   UpdateCollectionDocument,
   TestDatabase,
+  RunScript,
 ];
