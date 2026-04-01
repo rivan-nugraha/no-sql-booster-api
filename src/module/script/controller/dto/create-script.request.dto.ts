@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateScriptRequestDto {
   @IsString()
@@ -6,12 +6,12 @@ export class CreateScriptRequestDto {
   name: string;
 
   @IsString()
-  @IsNotEmpty()
-  database_id: string;
+  @IsOptional()
+  database_id?: string;
 
   @IsString()
-  @IsNotEmpty()
-  db_name: string;
+  @IsOptional()
+  db_name?: string;
 
   @IsString()
   @IsNotEmpty()

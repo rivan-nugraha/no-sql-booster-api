@@ -34,8 +34,8 @@ export class ScriptController {
 
   @SecureGet()
   async findAll(
-    @Query('database_id') database_id: string,
-    @Query('db_name') db_name: string,
+    @Query('database_id') database_id?: string,
+    @Query('db_name') db_name?: string,
   ) {
     return this.listScripts.execute({ database_id, db_name });
   }

@@ -6,11 +6,11 @@ export class ScriptMongoEntity extends BaseMongoEntity<typeof ScriptMongoEntity>
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true })
-  database_id: string;
+  @Prop()
+  database_id?: string;
 
-  @Prop({ required: true })
-  db_name: string;
+  @Prop()
+  db_name?: string;
 
   @Prop({ required: true })
   script: string;

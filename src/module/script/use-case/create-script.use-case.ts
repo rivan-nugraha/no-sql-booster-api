@@ -7,8 +7,8 @@ import { ScriptEntity } from '../domain/script.entity';
 
 type TCreateScriptPayload = {
   name: string;
-  database_id: string;
-  db_name: string;
+  database_id?: string;
+  db_name?: string;
   script: string;
   created_by?: string;
 };
