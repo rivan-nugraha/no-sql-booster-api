@@ -26,9 +26,7 @@ export class ListScripts
     if (database_id) query.database_id = database_id;
     if (db_name) query.db_name = db_name;
 
-    const scripts = Object.keys(query).length
-      ? await this.scriptRepository.findBy(query)
-      : await this.scriptRepository.findAll();
+    const scripts = await this.scriptRepository.findBy(query);
 
     return new ResponseDto({
       status: HttpStatus.OK,
