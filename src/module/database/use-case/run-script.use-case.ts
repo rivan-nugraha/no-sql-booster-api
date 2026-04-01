@@ -107,28 +107,16 @@ export class RunScript
         },
       };
 
-      // Very light sandbox: only expose db. No require/import.
-      const fn = new Function(
+      // Light sandbox: expose only db + console; evaluate user code via eval to avoid template string breakage
+      const runner = new Function(
         'db',
         'console',
-        `"use strict"; return (async () => { ${script} })();`,
+        'code',
+        `"use strict"; return (async () => { return await eval(code); })();`,
       );
 
-      let raw = await fn(nativeDb, consoleShim);
-      // If user forgot to write 'return', try treating script as an expression
-      if (raw === undefined) {
-        try {
-          const exprFn = new Function(
-            'db',
-            'console',
-            `"use strict"; return (async () => { return ${script} })();`,
-          );
-          raw = await exprFn(nativeDb, consoleShim);
-        } catch (innerErr) {
-          // ignore, fall back to original undefined
-          this.logger.debug?.(`Expression fallback failed: ${innerErr}`);
-        }
-      }
+      let raw = await runner(nativeDb, consoleShim, script);
+      // If user forgot to return and result is a cursor, it will be handled below; otherwise leave as-is
       data = raw;
 
       // If cursor-like, toArray with limit to avoid huge payloads
