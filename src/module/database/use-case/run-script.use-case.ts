@@ -112,7 +112,7 @@ export class RunScript
         'db',
         'console',
         'code',
-        `"use strict"; return (async () => { return await eval(code); })();`,
+        `"use strict"; return (async () => { return await eval("(async () => { " + code + " })()"); })();`,
       );
 
       let raw = await runner(nativeDb, consoleShim, script);
